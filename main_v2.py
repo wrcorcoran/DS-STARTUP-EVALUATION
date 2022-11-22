@@ -2,6 +2,7 @@ import torch
 import os
 import numpy as np
 import pandas as pd
+from torch.nn import Linear
 from tqdm import tqdm
 import seaborn as sns
 from pylab import rcParams
@@ -9,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib import rc
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report
+import torch
 from torch import nn, optim
 import torch.nn.functional as F
 
@@ -26,9 +28,8 @@ def round_tensor(t, decimal_places=3):
 class Net(nn.Module):
         def __init__(self, n_features):
                 super(Net, self).__init__()
-                self.fc1 = nn.Linear(n_features, 40)
-                self.fc2 = nn.Linear(40, 38)
-                self.fc3 = nn.Linear(38, 1)
+                self.layer = Linear(n_features, 1)
+
 
         def forward(self, x):
                 x = F.relu(self.fc1(x))
