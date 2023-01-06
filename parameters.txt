@@ -1,0 +1,20 @@
+Number of Direct competitors
+Employees count MoM change
+Employee Count
+Number of of repeat investors
+Last round of funding received (in milionUSD)
+Percent_skill_Entrepreneurship
+Number of Investors in Seed
+Number of Co-founders
+Percent_skill_Engineering
+Avg time to investment - average across all rounds, measured from previous investment
+Percent_skill_Data Science
+Skills score
+Time to 1st investment (in months)
+Degree from a Tier 1 or Tier 2 university?
+Relevance of education to venture
+Disruptiveness of technology
+year of founding
+Average Years of experience for founder and co founder
+Highest education
+Industry trend in investing

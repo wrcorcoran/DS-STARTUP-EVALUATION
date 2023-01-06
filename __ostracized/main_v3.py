@@ -1,12 +1,14 @@
+import torch
+from torch import nn
+from torch.utils import data
+from torch.utils.data import DataLoader
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
-import os
-from torch import nn, optim
-import torch.nn.functional as F
-import torch.utils.data as data
-import torch
-from tqdm import tqdm
 
+use_cuda = torch.cuda.is_available()
+# torch.autograd.set_detect_anomaly(True)
+# np.seterr(all="raise")
 
 class __Dataset(data.Dataset):
         def __init__(self):
@@ -57,93 +59,70 @@ class __Dataset(data.Dataset):
                 df = df[cols]
                 df = df.replace({'No Info': None, 'Success': 1, 'Failed': 0, 'No': 0, 'Yes': 1,
                                  'Bachelors': 1,
-                                 'Masters': 2, 'PhD': 3, 'None': 0, 'Both': 3, 'Tier_1': 1,
+                                 'Masters': 2, 'PhD': 3, 'Both': 3, 'Tier_1': 1,
                                  'Tier_2': 2,
-                                 'Low': 0, 'Medium': 1, 'High': 2}, inplace=False)
+                                 'Low': 0, 'Medium': 1, 'High': 2, 'None': None}, inplace=False)
 
                 df = df.dropna(how='any')
 
                 self.datalist = df
                 self.labels = cols
-                # x = np.array(df[cols[1:]], dtype=np.float16)
-                # y = df['Dependent-Company Status']
+                self.X = torch.from_numpy(np.array(df[cols[1:]], dtype=np.float16))
+                self.y = torch.from_numpy(np.array(df['Dependent-Company Status'],
+                                          dtype=np.float16))
 
         def __getitem__(self, index):
-                return torch.Tensor(self.datalist[index].astype(float)), self.labels[index]
+                return self.X[index], self.y[index]
 
         def __len__(self):
-                return self.datalist.shape[0]
+                return len(self.X)
 
-        def __size__(self):
-                return self.datalist.shape
-
-
-train_set = __Dataset()
-trainloader = torch.utils.data.DataLoader(dataset=train_set, batch_size=40, shuffle=False)
-
-print(train_set.__size__())
-
-
-class Net(nn.Module):
+class MLP(nn.Module):
         def __init__(self):
                 super().__init__()
-
-                self.fc1 = nn.Linear(20, 40)
-                self.b1 = nn.BatchNorm1d(40)
-                self.fc2 = nn.Linear(40, 20)
-                self.b2 = nn.BatchNorm1d(20)
-                self.fc3 = nn.Linear(20, 10)
-                self.b3 = nn.BatchNorm1d(10)
-                self.fc4 = nn.Linear(4, 1)
+                self.layers = nn.Sequential(
+                        nn.Linear(39, 64),
+                        nn.ReLU(),
+                        nn.Linear(64, 32),
+                        nn.ReLU(),
+                        nn.Linear(32, 1)
+                )
 
         def forward(self, x):
-                x = F.relu(self.fc1(x))
-                x = self.b1(x)
-                x = F.relu(self.fc2(x))
-                x = self.b2(x)
-                x = F.relu(self.fc3(x))
-                x = self.b3(x)
-                x = F.sigmoid(self.fc4(x))
-
-                return x
-
-from torch.optim import Adam
-
-net = Net()
-criterion = nn.MSELoss()
-EPOCHS = 200
-optm = Adam(net.parameters(), lr=0.001)
+                return self.layers(x)
 
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Using {device} device")
+if __name__ == '__main__':
+        torch.manual_seed(42)
+        trainloader = torch.utils.data.DataLoader(__Dataset(), batch_size=10, shuffle=True)
+        mlp = MLP()
+        loss_function = nn.L1Loss()
+        optimizer = torch.optim.Adam(mlp.parameters(), lr=1e-4)
 
+        for epoch in range(0, 5):
+                print('Starting epoch: ', epoch)
+                current_loss = 0.0
+                for i, data in enumerate(trainloader, 0):
+                        inputs, targets = data
+                        inputs, targets = inputs.float(), targets.float()
+                        targets = targets.reshape((targets.shape[0], 1))
 
-def train(model, x, y, optimizer, criterion):
-        model.zero_grad()
-        output = model(x)
-        loss = criterion(output, y)
-        loss.backward()
-        optimizer.step()
+                        optimizer.zero_grad()
 
-        return loss, output
+                        outputs = mlp(inputs)
 
+                        print(outputs)
 
-for epoch in range(EPOCHS):
-        epoch_loss = 0
-        correct = 0
-        for bidx, batch in enumerate(trainloader):
-                x_train, y_train = batch['inp'], batch['oup']
-                x_train = x_train.view(-1, 8)
-                x_train = x_train.to(device)
-                y_train - y_train.to(device)
-                loss, predictions = train(net, x_train, y_train, optm, criterion)
-                for idx, i in enumerate(predictions):
-                        i = torch.round(i)
-                        if i == y_train[idx]:
-                                correct += 1
-                acc = (correct/len(data))
-                epoch_loss += loss
+                        loss = loss_function(outputs, targets)
+                        loss.backward()
 
-        print('Epoch {} Accuracy: {}'.format(epoch+1, acc*100))
-        print('Epoch {} Loss: {}'.format((epoch+1), epoch_loss))
+                        optimizer.step()
+
+                        # current_loss += loss
+                        # if i % 10 == 0:
+                        #         print('Loss after mini-batch %5d: ' %
+                        #               (i + 1, current_loss))
+                        #         print(current_loss)
+                        #         current_loss = 0.0
+
+        print('Training process has finished.')

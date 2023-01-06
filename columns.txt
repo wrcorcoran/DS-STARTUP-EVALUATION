@@ -1,0 +1,40 @@
+Have been part of successful startups in the past?
+Last Funding Amount
+Percent_skill_Finance
+Percent_skill_Operations
+Percent_skill_Law
+Percent_skill_Investment
+Percent_skill_Domain
+Team size all employees
+Percent_skill_Product Management
+Percent_skill_Consulting
+Number of Investors in Angel and or VC
+Percent_skill_Business Strategy
+Percent_skill_Sales
+Worked in top companies
+Presence of a top angel or venture fund in previous round of investment
+Renown score
+Employees per year of company existence
+Percent_skill_Marketing
+Percent_skill_Leadership
+Number of Direct competitors
+Employees count MoM change
+Employee Count
+Number of of repeat investors
+Last round of funding received (in milionUSD)
+Percent_skill_Entrepreneurship
+Number of Investors in Seed
+Number of Co-founders
+Percent_skill_Engineering
+Avg time to investment - average across all rounds, measured from previous investment
+Percent_skill_Data Science
+Skills score
+Time to 1st investment (in months)
+Degree from a Tier 1 or Tier 2 university?
+Relevance of education to venture
+Disruptiveness of technology
+year of founding
+Average Years of experience for founder and co founder
+Highest education
+Industry trend in investing
+Dependent-Company Status
